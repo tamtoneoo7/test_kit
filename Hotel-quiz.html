@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HO.MIS - Hotel Operations Health Check</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --sky-blue: #4da6ff;
+            --deep-sky-blue: #0077cc;
+            --white: #ffffff;
+            --black: #000000;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --red: #ff4d4d;
+            --yellow: #ffcc00;
+            --green: #33cc33;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .ho {
+            color: var(--white);
+            background-color: var(--sky-blue);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .mis {
+            color: var(--black);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 2rem;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark-gray);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: var(--sky-blue);
+        }
+
+        main {
+            padding: 2rem;
+            min-height: calc(100vh - 120px);
+        }
+
+        section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .hero {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--deep-sky-blue);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--dark-gray);
+            margin-bottom: 2rem;
+        }
+
+        .video-container {
+            margin: 2rem 0;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-toggle {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .login-toggle button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            background-color: var(--medium-gray);
+            color: var(--dark-gray);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-toggle button.active {
+            background-color: var(--sky-blue);
+            color: var(--white);
+        }
+
+        .login-toggle button:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+
+        .login-toggle button:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+
+        #login-form {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #login-form input,
+        #login-form select {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        #login-form button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--sky-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #login-form button:hover {
+            background-color: var(--deep-sky-blue);
+        }
+
+        .hotel-fields {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--medium-gray);
+        }
+
+        .chart-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--deep-sky-blue);
+        }
+
+        /* Quiz Section Styles */
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .quiz-header h2 {
+            color: var(--deep-sky-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: var(--medium-gray);
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--sky-blue);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        #quiz-form {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .question.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .question h3 {
+            margin-bottom: 1.5rem;
+            color: var(--dark-gray);
+        }
+
+        .options {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.8rem 1.2rem;
+            background-color: var(--light-gray);
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .options label:hover {
+            background-color: var(--medium-gray);
+        }
+
+        .options input[type="radio"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        .quiz-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .quiz-navigation button {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--sky-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .quiz-navigation button:hover {
+            background-color: var(--deep-sky-blue);
+        }
+
+        .quiz-navigation button:disabled {
+            background-color: var(--medium-gray);
+            cursor: not-allowed;
+        }
+
+        /* Results Section Styles */
+        .result-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-icon.failure {
+            color: var(--red);
+        }
+
+        .result-icon.warning {
+            color: var(--yellow);
+        }
+
+        .result-icon.success {
+            color: var(--green);
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3rem;
+            margin: 2rem 0;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            position: relative;
+            animation: grow 1s ease-out;
+        }
+
+        @keyframes grow {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            border: 10px solid;
+            border-color: var(--sky-blue) var(--sky-blue) var(--sky-blue) transparent;
+            transform: rotate(45deg);
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(405deg); }
+        }
+
+        .score-details {
+            text-align: left;
+        }
+
+        .score-details p {
+            margin-bottom: 0.8rem;
+        }
+
+        .result-message {
+            font-size: 1.2rem;
+            margin: 2rem 0;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .result-actions button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #retake-btn {
+            background-color: var(--sky-blue);
+            color: var(--white);
+        }
+
+        #retake-btn:hover {
+            background-color: var(--deep-sky-blue);
+        }
+
+        #download-btn {
+            background-color: var(--white);
+            color: var(--sky-blue);
+            border: 2px solid var(--sky-blue);
+        }
+
+        #download-btn:hover {
+            background-color: var(--light-gray);
+        }
+
+        footer {
+            background-color: var(--white);
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            nav ul {
+                margin-top: 1rem;
+            }
+
+            nav ul li {
+                margin-left: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .score-container {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .options {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .result-actions {
+                flex-direction: column;
+            }
+
+            #login-form,
+            #quiz-form,
+            .result-container,
+            .chart-container {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quiz-navigation {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .quiz-navigation button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="ho">HO</span><span class="mis">.MIS</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" id="home-link">Home</a></li>
+                <li><a href="#" id="quiz-link">Take Quiz</a></li>
+                <li><a href="#" id="results-link">Results</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home-section" class="active">
+            <div class="hero">
+                <h1>Hotel Operations Health Check</h1>
+                <p class="subtitle">A quick diagnostic to evaluate your hotel's operational health and find out if your hotel is running smoothly or silently leaking profit.</p>
+                <div class="video-container">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/example" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div class="login-toggle">
+                    <button id="hotel-login-btn" class="active">Hotel Login</button>
+                    <button id="admin-login-btn">Admin Login</button>
+                </div>
+                <div id="login-form">
+                    <form id="hotel-login-form">
+                        <input type="text" placeholder="Username" required>
+                        <input type="password" placeholder="Password" required>
+                        <div class="hotel-fields">
+                            <input type="text" placeholder="Hotel Location" required>
+                            <input type="number" placeholder="Hotel Capacity (number of rooms)" required>
+                            <select required>
+                                <option value="">Number of Stars</option>
+                                <option value="1">1 Star</option>
+                                <option value="2">2 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="5">5 Stars</option>
+                            </select>
+                        </div>
+                        <button type="submit">Login</button>
+                    </form>
+                    <form id="admin-login-form" style="display: none;">
+                        <input type="text" placeholder="Admin Username" required>
+                        <input type="password" placeholder="Admin Password" required>
+                        <button type="submit">Login</button>
+                    </form>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h2>Common Operational Challenges by Hotel Type</h2>
+                <canvas id="hotelChart"></canvas>
+            </div>
+        </section>
+
+        <section id="quiz-section">
+            <div class="quiz-header">
+                <h2>Hotel Operations Health Check</h2>
+                <p>Answer the following questions to evaluate your hotel's operational health</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="quiz-progress"></div>
+                </div>
+            </div>
+            <form id="quiz-form">
+                <div class="question active" data-question="1">
+                    <h3>Question 1: Can you view room availability instantly across all channels?</h3>
+                    <div class="options">
+                        <label>
+                            <input type="radio" name="q1" value="yes" required> Yes
+                        </label>
+                        <label>
+                            <input type="radio" name="q1" value="no"> No
+                        </label>
+                    </div>
+                </div>
+                <div class="question" data-question="2">
+                    <h3>Question 2: Do you maintain a list of approved or preferred suppliers for regular purchases?</h3>
+                    <div class="options">
+                        <label>
+                            <input type="radio" name="q2" value="yes" required> Yes
+                        </label>
+                        <label>
+                            <input type="radio" name="q2" value="no"> No
+                        </label>
+                    </div>
+                </div>
+                <div class="question" data-question="3">
+                    <h3>Question 3: Do you place purchase orders manually (e.g., by phone or email) rather than through a system?</h3>
+                    <div class="options">
+                        <label>
+                            <input type="radio" name="q3" value="yes" required> Yes
+                        </label>
+                        <label>
+                            <input type="radio" name="q3" value="no"> No
+                        </label>
+                    </div>
+                </div>
+                <div class="question" data-question="4">
+                    <h3>Question 4: Have maintenance issues ever caused you to take a room out of service?</h3>
+                    <div class="options">
+                        <label>
+                            <input type="radio" name="q4" value="yes" required> Yes
+                        </label>
+                        <label>
+                            <input type="radio" name="q4" value="no"> No
+                        </label>
+                    </div>
+                </div>
+                <div class="question" data-question="5">
+                    <h3>Question 5: Do the same rooms or facilities frequently experience the same issues?</h3>
+                    <div class="options">
+                        <label>
+                            <input type="radio" name="q5" value="yes" required> Yes
+                        </label>
+                        <label>
+                            <input type="radio" name="q5" value="no"> No
+                        </label>
+                    </div>
+                </div>
+                <div class="question" data-question="6">
+                    <h3>Question 6: Do you use a digital system or software to manage room reservations?</h3>
+                    <div class="options">
+                        <label>
+                            <input type="radio" name="q6" value="yes" required> Yes
+                        </label>
+                        <label>
+                            <input type="radio" name="q6" value="no"> No
+                        </label>
+                    </div>
+                </div>
+                <div class="quiz-navigation">
+                    <button type="button" id="prev-btn" disabled>Previous</button>
+                    <button type="button" id="next-btn">Next</button>
+                    <button type="submit" id="submit-btn" style="display: none;">Submit</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="results-section">
+            <div class="result-container">
+                <div class="result-icon" id="result-icon">
+                    <!-- Icon will be inserted here based on score -->
+                </div>
+                <h2 id="result-title">Your Hotel Operations Health Check Result</h2>
+                <div class="score-container">
+                    <div class="score-circle">
+                        <span id="score-percentage">0</span>%
+                    </div>
+                    <div class="score-details">
+                        <p><strong>Hotel Location:</strong> <span id="result-location">N/A</span></p>
+                        <p><strong>Capacity:</strong> <span id="result-capacity">N/A</span> rooms</p>
+                        <p><strong>Star Rating:</strong> <span id="result-stars">N/A</span></p>
+                    </div>
+                </div>
+                <p id="result-message" class="result-message">Your test results will appear here.</p>
+                <div class="result-actions">
+                    <button id="retake-btn">Retake Quiz</button>
+                    <button id="download-btn">Download Results</button>
+                </div>
+                <div class="chart-container">
+                    <h3>Performance Breakdown</h3>
+                    <canvas id="resultChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="logo">
+                <span class="ho">HO</span><span class="mis">.MIS</span>
+            </div>
+            <p>© 2023 Hotel Operations Management Information System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const homeLink = document.getElementById('home-link');
+            const quizLink = document.getElementById('quiz-link');
+            const resultsLink = document.getElementById('results-link');
+            const homeSection = document.getElementById('home-section');
+            const quizSection = document.getElementById('quiz-section');
+            const resultsSection = document.getElementById('results-section');
+            const hotelLoginBtn = document.getElementById('hotel-login-btn');
+            const adminLoginBtn = document.getElementById('admin-login-btn');
+            const hotelLoginForm = document.getElementById('hotel-login-form');
+            const adminLoginForm = document.getElementById('admin-login-form');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            const quizForm = document.getElementById('quiz-form');
+            const questions = document.querySelectorAll('.question');
+            const quizProgress = document.getElementById('quiz-progress');
+            const retakeBtn = document.getElementById('retake-btn');
+            const downloadBtn = document.getElementById('download-btn');
+            const scorePercentage = document.getElementById('score-percentage');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            const resultIcon = document.getElementById('result-icon');
+            const resultLocation = document.getElementById('result-location');
+            const resultCapacity = document.getElementById('result-capacity');
+            const resultStars = document.getElementById('result-stars');
+
+            // Quiz state
+            let currentQuestion = 0;
+            let hotelData = {};
+            let answers = {};
+            
+            // Initialize Chart
+            initializeChart();
+            
+            // Event Listeners
+            homeLink.addEventListener('click', () => showSection('home'));
+            quizLink.addEventListener('click', () => showSection('quiz'));
+            resultsLink.addEventListener('click', () => showSection('results'));
+            
+            hotelLoginBtn.addEventListener('click', () => toggleLoginForm('hotel'));
+            adminLoginBtn.addEventListener('click', () => toggleLoginForm('admin'));
+            
+            prevBtn.addEventListener('click', showPreviousQuestion);
+            nextBtn.addEventListener('click', showNextQuestion);
+            retakeBtn.addEventListener('click', resetQuiz);
+            downloadBtn.addEventListener('click', downloadResults);
+            
+            // Form submissions
+            hotelLoginForm.addEventListener('submit', handleHotelLogin);
+            adminLoginForm.addEventListener('submit', handleAdminLogin);
+            quizForm.addEventListener('submit', handleQuizSubmission);
+            
+            // Initialize the first question
+            showQuestion(currentQuestion);
+            
+            // Functions
+            function showSection(section) {
+                homeSection.classList.remove('active');
+                quizSection.classList.remove('active');
+                resultsSection.classList.remove('active');
+                
+                if (section === 'home') {
+                    homeSection.classList.add('active');
+                } else if (section === 'quiz') {
+                    quizSection.classList.add('active');
+                    // Reset quiz when navigating to it
+                    resetQuiz();
+                } else if (section === 'results') {
+                    resultsSection.classList.add('active');
+                }
+            }
+            
+            function toggleLoginForm(type) {
+                if (type === 'hotel') {
+                    hotelLoginBtn.classList.add('active');
+                    adminLoginBtn.classList.remove('active');
+                    hotelLoginForm.style.display = 'block';
+                    adminLoginForm.style.display = 'none';
+                } else {
+                    hotelLoginBtn.classList.remove('active');
+                    adminLoginBtn.classList.add('active');
+                    hotelLoginForm.style.display = 'none';
+                    adminLoginForm.style.display = 'block';
+                }
+            }
+            
+            function handleHotelLogin(e) {
+                e.preventDefault();
+                const formData = new FormData(hotelLoginForm);
+                
+                hotelData = {
+                    username: formData.get('username'),
+                    location: formData.get('location'),
+                    capacity: formData.get('capacity'),
+                    stars: formData.get('stars')
+                };
+                
+                // In a real app, you would validate and send to server
+                alert('Hotel login successful! You can now take the quiz.');
+                showSection('quiz');
+            }
+            
+            function handleAdminLogin(e) {
+                e.preventDefault();
+                // In a real app, you would validate and send to server
+                alert('Admin login successful!');
+            }
+            
+            function showQuestion(index) {
+                questions.forEach((question, i) => {
+                    question.classList.remove('active');
+                    if (i === index) {
+                        question.classList.add('active');
+                    }
+                });
+                
+                // Update progress bar
+                const progress = ((index + 1) / questions.length) * 100;
+                quizProgress.style.width = `${progress}%`;
+                
+                // Update navigation buttons
+                prevBtn.disabled = index === 0;
+                nextBtn.style.display = index === questions.length - 1 ? 'none' : 'block';
+                submitBtn.style.display = index === questions.length - 1 ? 'block' : 'none';
+            }
+            
+            function showNextQuestion() {
+                // Save answer before moving
+                const currentQuestionElement = questions[currentQuestion];
+                const selectedOption = currentQuestionElement.querySelector('input[type="radio"]:checked');
+                
+                if (!selectedOption) {
+                    alert('Please select an answer before proceeding.');
+                    return;
+                }
+                
+                answers[`q${currentQuestion + 1}`] = selectedOption.value;
+                
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    showQuestion(currentQuestion);
+                }
+            }
+            
+            function showPreviousQuestion() {
+                if (currentQuestion > 0) {
+                    currentQuestion--;
+                    showQuestion(currentQuestion);
+                }
+            }
+            
+            function handleQuizSubmission(e) {
+                e.preventDefault();
+                
+                // Save the last answer
+                const currentQuestionElement = questions[currentQuestion];
+                const selectedOption = currentQuestionElement.querySelector('input[type="radio"]:checked');
+                answers[`q${currentQuestion + 1}`] = selectedOption.value;
+                
+                // Calculate score
+                const score = calculateScore(answers);
+                const percentage = Math.round((score / 6) * 100);
+                
+                // Display results
+                displayResults(percentage);
+                showSection('results');
+            }
+            
+            function calculateScore(answers) {
+                let score = 0;
+                
+                // Q1: yes → +1
+                if (answers.q1 === 'yes') score++;
+                // Q2: yes → +1
+                if (answers.q2 === 'yes') score++;
+                // Q3: no → +1
+                if (answers.q3 === 'no') score++;
+                // Q4: no → +1
+                if (answers.q4 === 'no') score++;
+                // Q5: no → +1
+                if (answers.q5 === 'no') score++;
+                // Q6: yes → +1
+                if (answers.q6 === 'yes') score++;
+                
+                return score;
+            }
+            
+            function displayResults(percentage) {
+                scorePercentage.textContent = percentage;
+                
+                // Update hotel info if available
+                if (hotelData.location) {
+                    resultLocation.textContent = hotelData.location;
+                    resultCapacity.textContent = hotelData.capacity;
+                    resultStars.textContent = `${hotelData.stars} Star${hotelData.stars > 1 ? 's' : ''}`;
+                }
+                
+                // Determine result category
+                let resultCategory, iconClass, icon;
+                
+                if (percentage <= 50) {
+                    resultCategory = 'Failure';
+                    iconClass = 'failure';
+                    icon = '❌';
+                    resultMessage.textContent = 'Your test results suggest your hotel is facing operational challenges that need urgent structure, systemization, and decision support (MIS).';
+                    resultMessage.style.backgroundColor = 'rgba(255, 77, 77, 0.1)';
+                } else if (percentage <= 70) {
+                    resultCategory = 'Good';
+                    iconClass = 'warning';
+                    icon = '⚠️';
+                    resultMessage.textContent = 'Your hotel is doing well, but an MIS would enhance your operational performance and help you achieve even better results.';
+                    resultMessage.style.backgroundColor = 'rgba(255, 204, 0, 0.1)';
+                } else {
+                    resultCategory = 'Excellent';
+                    iconClass = 'success';
+                    icon = '✅';
+                    resultMessage.textContent = 'Your hotel is well-run, but a MIS could still optimize your management and help you maintain your high standards.';
+                    resultMessage.style.backgroundColor = 'rgba(51, 204, 51, 0.1)';
+                }
+                
+                resultTitle.textContent = `Your Hotel Operations Health Check Result: ${resultCategory}`;
+                resultIcon.className = 'result-icon ' + iconClass;
+                resultIcon.textContent = icon;
+                
+                // Update result chart
+                updateResultChart(percentage);
+            }
+            
+            function resetQuiz() {
+                currentQuestion = 0;
+                answers = {};
+                quizForm.reset();
+                showQuestion(currentQuestion);
+            }
+            
+            function downloadResults() {
+                const percentage = scorePercentage.textContent;
+                const location = resultLocation.textContent;
+                const capacity = resultCapacity.textContent;
+                const stars = resultStars.textContent;
+                const message = resultMessage.textContent;
+                
+                const content = `
+HO.MIS - Hotel Operations Health Check Results
+=============================================
+
+Score: ${percentage}%
+Hotel Location: ${location}
+Hotel Capacity: ${capacity}
+Star Rating: ${stars}
+
+Assessment: ${message}
+
+Recommendation: Consider implementing a Hotel Management Information System (MIS) to ${percentage <= 50 ? 'address operational challenges' : percentage <= 70 ? 'enhance operational performance' : 'further optimize management'}.
+                `;
+                
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'hotel_health_check_results.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+            
+            function initializeChart() {
+                const ctx = document.getElementById('hotelChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                        datasets: [{
+                            label: 'Hotels Facing Operational Challenges',
+                            data: [85, 70, 55, 40, 25],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(255, 159, 64, 0.7)',
+                                'rgba(255, 205, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(54, 162, 235, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgb(255, 99, 132)',
+                                'rgb(255, 159, 64)',
+                                'rgb(255, 205, 86)',
+                                'rgb(75, 192, 192)',
+                                'rgb(54, 162, 235)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Percentage of Hotels'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Hotel Star Rating'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Operational Challenges by Hotel Star Rating'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            function updateResultChart(percentage) {
+                const ctx = document.getElementById('resultChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Score Achieved', 'Remaining Potential'],
+                        datasets: [{
+                            data: [percentage, 100 - percentage],
+                            backgroundColor: [
+                                percentage <= 50 ? 'rgba(255, 99, 132, 0.7)' : 
+                                percentage <= 70 ? 'rgba(255, 205, 86, 0.7)' : 'rgba(75, 192, 192, 0.7)',
+                                'rgba(201, 203, 207, 0.7)'
+                            ],
+                            borderColor: [
+                                percentage <= 50 ? 'rgb(255, 99, 132)' : 
+                                percentage <= 70 ? 'rgb(255, 205, 86)' : 'rgb(75, 192, 192)',
+                                'rgb(201, 203, 207)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Your Performance Breakdown'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.raw}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
